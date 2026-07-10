@@ -7,9 +7,10 @@ import {
   Thermometer, Droplet, Wind, CloudRain, Sun, Cloud,
   Battery, Wifi, CheckCircle, AlertCircle, X, Check,
   Activity, BarChart2, TrendingUp, Settings, Camera,
-  ChevronDown, ChevronUp, Layers, Filter, Search
+  ChevronDown, ChevronUp, Layers, Filter, Search, Sparkles
 } from 'lucide-react';
 import api from '../services/api';
+import AiAdvisorTab from '../components/dashboard/AiAdvisorTab';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface Farm { id: string; farmName: string; district: string; province: string; totalArea: number; }
@@ -22,9 +23,9 @@ interface MoistureReading { moisturePercentage: number; recordedAt: string; }
 
 const TABS = [
   { id: 'home', label: 'Home', icon: Home },
+  { id: 'agronomist', label: 'AI Advisor', icon: Sparkles },
   { id: 'farms', label: 'Farms', icon: Leaf },
   { id: 'irrigation', label: 'Water', icon: Droplets },
-  { id: 'sensors', label: 'Sensors', icon: Cpu },
   { id: 'profile', label: 'Profile', icon: User },
 ];
 
@@ -54,6 +55,7 @@ function SectionHeader({ title, action, onAction }: { title: string; action?: st
 
 // ── Home Screen ──────────────────────────────────────────────────────────────
 function HomeScreen({ farms, notifications, motors, currentUser }: { farms: Farm[]; notifications: Notification[]; motors: Motor[]; currentUser: any; }) {
+  const navigate = useNavigate();
   const unread = notifications.filter(n => !n.isRead);
   const runningMotors = motors.filter(m => m.status === 'Running');
   const hour = new Date().getHours();
@@ -79,6 +81,23 @@ function HomeScreen({ farms, notifications, motors, currentUser }: { farms: Farm
           )}
         </div>
       </div>
+
+      {/* AI Assistant Banner */}
+      <button 
+        onClick={() => navigate('/farmer-app/agronomist')}
+        className="w-full bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100/60 rounded-3xl p-4 flex items-center justify-between text-left cursor-pointer hover:bg-emerald-100/40 transition"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-emerald-500/10 rounded-2xl text-emerald-600">
+            <Sparkles className="h-5 w-5 animate-pulse" />
+          </div>
+          <div>
+            <h4 className="text-xs font-bold text-slate-800">Ask AI Agronomist</h4>
+            <p className="text-[10px] text-slate-400 font-semibold leading-normal">Get watering diagnostics, advice and schedules.</p>
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-emerald-600" />
+      </button>
 
       {/* Quick Stats */}
       <div className="flex gap-2">
@@ -901,6 +920,14 @@ export default function FarmerAppPage() {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
+  const [zones, setZones] = useState<Zone[]>([]);
+  const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
+
+  const handleZoneSelect = (zone: Zone) => {
+    setSelectedZone(zone);
+  };
+
   useEffect(() => { setActiveTab(tab || 'home'); }, [tab]);
 
   const switchTab = (id: string) => navigate('/farmer-app/' + id);
@@ -919,11 +946,35 @@ export default function FarmerAppPage() {
       ]);
 
       const rawFarms = farmsRes.data.data || [];
-      setFarms(rawFarms.map((f: any) => ({
+      const formattedFarms = rawFarms.map((f: any) => ({
         id: f.Id ?? f.id, farmName: f.FarmName ?? f.farmName,
         district: f.District ?? f.district, province: f.Province ?? f.province,
         totalArea: f.TotalArea ?? f.totalArea,
-      })));
+      }));
+      setFarms(formattedFarms);
+
+      if (formattedFarms.length > 0) {
+        const firstFarm = formattedFarms[0];
+        setSelectedFarm(firstFarm);
+        try {
+          const zonesRes = await api.get(`api/v1/irrigationzones/farm/${firstFarm.id}`);
+          const rawZones = zonesRes.data.data || [];
+          const formattedZones = rawZones.map((z: any) => ({
+            id: z.Id ?? z.id,
+            zoneName: z.ZoneName ?? z.zoneName,
+            cropType: z.CropType ?? z.cropType,
+            soilType: z.SoilType ?? z.soilType,
+            area: z.Area ?? z.area,
+            status: z.Status ?? z.status,
+          }));
+          setZones(formattedZones);
+          if (formattedZones.length > 0) {
+            setSelectedZone(formattedZones[0]);
+          }
+        } catch (err) {
+          console.error("Failed to load zones for agronomist:", err);
+        }
+      }
 
       const rawMotors = motorsRes.data.data || [];
       setMotors(rawMotors.map((m: any) => ({
@@ -1032,6 +1083,15 @@ export default function FarmerAppPage() {
             ) : (
               <>
                 {activeTab === 'home' && <HomeScreen {...screenProps} />}
+                {activeTab === 'agronomist' && (
+                  <AiAdvisorTab 
+                    farms={farms}
+                    zones={zones}
+                    selectedFarm={selectedFarm}
+                    selectedZone={selectedZone}
+                    onZoneSelect={handleZoneSelect}
+                  />
+                )}
                 {activeTab === 'farms' && <FarmsScreen farms={farms} />}
                 {activeTab === 'irrigation' && <IrrigationScreen farms={farms} motors={motors} tanks={tanks} />}
                 {activeTab === 'sensors' && <SensorsScreen />}
