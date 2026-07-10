@@ -1,0 +1,258 @@
+@startuml
+title FLORAX AGROPIX - Smart Irrigation Management System ER Diagram
+
+hide methods
+hide stereotypes
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+entity Roles {
+    *role_id : UUID <<PK>>
+    --
+    role_name : VARCHAR
+    description : TEXT
+}
+
+entity Users {
+    *user_id : UUID <<PK>>
+    --
+    role_id : UUID <<FK>>
+    full_name : VARCHAR
+    email : VARCHAR
+    phone : VARCHAR
+    password_hash : TEXT
+    status : VARCHAR
+    created_at : TIMESTAMP
+}
+
+entity Farms {
+    *farm_id : UUID <<PK>>
+    --
+    owner_id : UUID <<FK>>
+    farm_name : VARCHAR
+    district : VARCHAR
+    province : VARCHAR
+    latitude : DECIMAL
+    longitude : DECIMAL
+    total_area : DECIMAL
+}
+
+entity Irrigation_Zones {
+    *zone_id : UUID <<PK>>
+    --
+    farm_id : UUID <<FK>>
+    zone_name : VARCHAR
+    crop_type : VARCHAR
+    soil_type : VARCHAR
+    area : DECIMAL
+    status : VARCHAR
+}
+
+entity Sensor_Devices {
+    *sensor_id : UUID <<PK>>
+    --
+    zone_id : UUID <<FK>>
+    device_serial : VARCHAR
+    sensor_type : VARCHAR
+    firmware_version : VARCHAR
+    battery_percentage : INT
+    signal_strength : INT
+    status : VARCHAR
+    installed_at : TIMESTAMP
+}
+
+entity Valve_Controllers {
+    *valve_id : UUID <<PK>>
+    --
+    zone_id : UUID <<FK>>
+    device_serial : VARCHAR
+    state : VARCHAR
+    flow_rate : DECIMAL
+}
+
+entity Motors {
+    *motor_id : UUID <<PK>>
+    --
+    farm_id : UUID <<FK>>
+    motor_name : VARCHAR
+    power_rating : VARCHAR
+    status : VARCHAR
+    runtime_hours : DECIMAL
+}
+
+entity Water_Tanks {
+    *tank_id : UUID <<PK>>
+    --
+    farm_id : UUID <<FK>>
+    tank_name : VARCHAR
+    capacity_liters : DECIMAL
+    current_level : DECIMAL
+    status : VARCHAR
+}
+
+entity Soil_Moisture_Readings {
+    *reading_id : UUID <<PK>>
+    --
+    sensor_id : UUID <<FK>>
+    zone_id : UUID <<FK>>
+    moisture_percentage : DECIMAL
+    recorded_at : TIMESTAMP
+}
+
+entity Temperature_Readings {
+    *reading_id : UUID <<PK>>
+    --
+    sensor_id : UUID <<FK>>
+    temperature : DECIMAL
+    recorded_at : TIMESTAMP
+}
+
+entity Humidity_Readings {
+    *reading_id : UUID <<PK>>
+    --
+    sensor_id : UUID <<FK>>
+    humidity : DECIMAL
+    recorded_at : TIMESTAMP
+}
+
+entity Water_Level_Readings {
+    *reading_id : UUID <<PK>>
+    --
+    tank_id : UUID <<FK>>
+    water_level : DECIMAL
+    recorded_at : TIMESTAMP
+}
+
+entity Irrigation_Schedules {
+    *schedule_id : UUID <<PK>>
+    --
+    zone_id : UUID <<FK>>
+    created_by : UUID <<FK>>
+    start_time : TIME
+    duration_minutes : INT
+    repeat_type : VARCHAR
+    enabled : BOOLEAN
+}
+
+entity Irrigation_History {
+    *history_id : UUID <<PK>>
+    --
+    schedule_id : UUID <<FK>>
+    zone_id : UUID <<FK>>
+    valve_id : UUID <<FK>>
+    motor_id : UUID <<FK>>
+    started_at : TIMESTAMP
+    ended_at : TIMESTAMP
+    water_used : DECIMAL
+    status : VARCHAR
+}
+
+entity Notifications {
+    *notification_id : UUID <<PK>>
+    --
+    user_id : UUID <<FK>>
+    title : VARCHAR
+    message : TEXT
+    type : VARCHAR
+    is_read : BOOLEAN
+    created_at : TIMESTAMP
+}
+
+entity Device_Status {
+    *status_id : UUID <<PK>>
+    --
+    device_id : UUID
+    device_type : VARCHAR
+    online_status : BOOLEAN
+    battery : INT
+    signal_strength : INT
+    last_seen : TIMESTAMP
+}
+
+entity Weather_Data {
+    *weather_id : UUID <<PK>>
+    --
+    farm_id : UUID <<FK>>
+    temperature : DECIMAL
+    humidity : DECIMAL
+    rainfall : DECIMAL
+    wind_speed : DECIMAL
+    weather_condition : VARCHAR
+    recorded_at : TIMESTAMP
+}
+
+entity Solar_Battery_Status {
+    *battery_id : UUID <<PK>>
+    --
+    farm_id : UUID <<FK>>
+    battery_percentage : INT
+    solar_voltage : DECIMAL
+    charging : BOOLEAN
+    recorded_at : TIMESTAMP
+}
+
+entity Water_Usage_Reports {
+    *report_id : UUID <<PK>>
+    --
+    farm_id : UUID <<FK>>
+    zone_id : UUID <<FK>>
+    report_date : DATE
+    total_water_used : DECIMAL
+    average_moisture : DECIMAL
+    irrigation_count : INT
+}
+
+entity Mobile_App_Settings {
+    *setting_id : UUID <<PK>>
+    --
+    user_id : UUID <<FK>>
+    language : VARCHAR
+    theme : VARCHAR
+    notification_enabled : BOOLEAN
+    auto_sync : BOOLEAN
+}
+
+entity Audit_Logs {
+    *log_id : UUID <<PK>>
+    --
+    user_id : UUID <<FK>>
+    action : VARCHAR
+    table_name : VARCHAR
+    record_id : UUID
+    ip_address : VARCHAR
+    created_at : TIMESTAMP
+}
+
+Roles ||--o{ Users
+
+Users ||--o{ Farms
+Users ||--o{ Notifications
+Users ||--o{ Mobile_App_Settings
+Users ||--o{ Audit_Logs
+Users ||--o{ Irrigation_Schedules
+
+Farms ||--o{ Irrigation_Zones
+Farms ||--o{ Water_Tanks
+Farms ||--o{ Motors
+Farms ||--o{ Weather_Data
+Farms ||--o{ Solar_Battery_Status
+Farms ||--o{ Water_Usage_Reports
+
+Irrigation_Zones ||--o{ Sensor_Devices
+Irrigation_Zones ||--o{ Valve_Controllers
+Irrigation_Zones ||--o{ Soil_Moisture_Readings
+Irrigation_Zones ||--o{ Irrigation_Schedules
+Irrigation_Zones ||--o{ Irrigation_History
+Irrigation_Zones ||--o{ Water_Usage_Reports
+
+Sensor_Devices ||--o{ Soil_Moisture_Readings
+Sensor_Devices ||--o{ Temperature_Readings
+Sensor_Devices ||--o{ Humidity_Readings
+
+Water_Tanks ||--o{ Water_Level_Readings
+
+Valve_Controllers ||--o{ Irrigation_History
+Motors ||--o{ Irrigation_History
+Irrigation_Schedules ||--o{ Irrigation_History
+
+@enduml
