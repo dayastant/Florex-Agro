@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
-  Sprout, LogOut, ChevronLeft, ChevronRight, Layers, Cpu, CloudRain, Database, BarChart3, Users, Sliders, LayoutDashboard, Clock, Plus, Trash, RefreshCw, Calendar
+  Sprout, LogOut, ChevronLeft, ChevronRight, Layers, Cpu, CloudRain, Database, BarChart3, Users, Sliders, LayoutDashboard, Clock, Plus, Trash, RefreshCw, Calendar, Sparkles
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -14,6 +14,7 @@ import WaterTab from '../components/dashboard/WaterTab';
 import AnalyticsTab from '../components/dashboard/AnalyticsTab';
 import TeamTab from '../components/dashboard/TeamTab';
 import SettingsTab from '../components/dashboard/SettingsTab';
+import AiAdvisorTab from '../components/dashboard/AiAdvisorTab';
 
 interface Farm {
   id: string;
@@ -447,6 +448,7 @@ export default function DashboardPage() {
   const getTabTitle = () => {
     switch (activeTab) {
       case 'overview': return 'Overview Diagnostics';
+      case 'agronomist': return 'AI Agronomist Advisor';
       case 'farms': return 'Farm Management';
       case 'irrigation': return 'Irrigation & Motor Controls';
       case 'sensors': return 'IoT Sensor Devices';
@@ -462,6 +464,7 @@ export default function DashboardPage() {
   const getTabDescription = () => {
     switch (activeTab) {
       case 'overview': return 'Live agronomic status overview, metrics, and immediate telemetry controls.';
+      case 'agronomist': return 'Smart agronomic analysis, soil preservation recommendations, and AI scheduling.';
       case 'farms': return 'Register and manage geographical farm sectors, areas, and zones.';
       case 'irrigation': return 'Interactive control switches for active pump motors, solenoid valves, and logs.';
       case 'sensors': return 'Real-time battery metrics and diagnostic status of nodes.';
@@ -487,6 +490,7 @@ export default function DashboardPage() {
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'agronomist', label: 'AI Agronomist', icon: Sparkles },
     { id: 'farms', label: 'Farms & Zones', icon: Layers },
     { id: 'irrigation', label: 'Irrigation Pumps', icon: CloudRain },
     { id: 'sensors', label: 'IoT Sensors', icon: Cpu },
@@ -605,6 +609,16 @@ export default function DashboardPage() {
               onZoneSelect={handleZoneSelect}
               onTriggerIrrigation={handleTriggerIrrigation}
               onNavigateToTab={(t) => navigate('/dashboard/' + t)}
+            />
+          )}
+
+          {activeTab === 'agronomist' && (
+            <AiAdvisorTab 
+              farms={farms}
+              zones={zones}
+              selectedFarm={selectedFarm}
+              selectedZone={selectedZone}
+              onZoneSelect={handleZoneSelect}
             />
           )}
 
