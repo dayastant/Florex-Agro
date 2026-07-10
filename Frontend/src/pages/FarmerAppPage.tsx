@@ -564,12 +564,13 @@ function IrrigationScreen({ farms, motors, tanks }: { farms: Farm[]; motors: Mot
           <SectionHeader title="Water Reservoirs & Tanks" />
           <div className="space-y-3">
             {tanks.map(t => {
-              const currentLevel = t.currentLevel ?? t.CurrentLevel ?? 70;
-              const capacity = t.capacityLiters ?? t.CapacityLiters ?? 5000;
+              const capacity = t.capacityLiters ?? t.CapacityLiters ?? 10000;
+              const level = t.currentLevel ?? t.CurrentLevel ?? 4000;
               const status = t.status ?? t.Status ?? 'Optimal';
+              const percent = Math.min(100, Math.round((level / capacity) * 100));
 
               // Fluid wave translation Y positioning (from 100% full = translateY(8px) to 0% = translateY(148px))
-              const waveY = 148 - (currentLevel / 100) * 140;
+              const waveY = 148 - (percent / 100) * 140;
 
               return (
                 <div key={t.id} className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-4 shadow-xs">
@@ -584,7 +585,7 @@ function IrrigationScreen({ farms, motors, tanks }: { farms: Farm[]; motors: Mot
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-[10px] font-black text-slate-800 bg-white/75 px-1 py-0.5 rounded shadow-xs">
-                        {currentLevel}%
+                        {percent}%
                       </span>
                     </div>
                   </div>
@@ -599,7 +600,7 @@ function IrrigationScreen({ farms, motors, tanks }: { farms: Farm[]; motors: Mot
                       </span>
                     </div>
                     <p className="text-[10px] text-slate-400">Total Capacity: <strong className="text-slate-600">{capacity} L</strong></p>
-                    <p className="text-[10px] text-slate-400">Available Water: <strong className="text-blue-600">{Math.round((currentLevel / 100) * capacity)} L</strong></p>
+                    <p className="text-[10px] text-slate-400">Available Water: <strong className="text-blue-600">{level} L</strong></p>
                   </div>
                 </div>
               );
@@ -987,8 +988,8 @@ export default function FarmerAppPage() {
       setTanks(rawTanks.map((t: any) => ({
         id: t.Id ?? t.id,
         tankName: t.TankName ?? t.tankName,
-        capacityLiters: t.CapacityLiters ?? t.capacityLiters ?? 5000,
-        currentLevel: t.CurrentLevel ?? t.currentLevel ?? 75,
+        capacityLiters: t.CapacityLiters ?? t.capacityLiters ?? 10000,
+        currentLevel: t.CurrentLevel ?? t.currentLevel ?? 4000,
         status: t.Status ?? t.status ?? 'Active',
       })));
 
