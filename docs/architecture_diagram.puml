@@ -1,0 +1,54 @@
+@startuml FLORAX_Agropix_Architecture
+!theme slate
+skinparam componentStyle uml2
+skinparam PackageBackgroundColor #2A2F35
+skinparam DatabaseBackgroundColor #1A1F24
+skinparam NodeBackgroundColor #1A1F24
+skinparam ComponentBackgroundColor #3A3F45
+skinparam ArrowColor #10B981
+
+title FLORAX Agropix - Technical Architecture Diagram
+
+package "Client Layer" {
+    [Mobile Client\n(Expo / React Native / Zustand)] as Mobile
+    [Web Client\n(React / TypeScript / Vite)] as Web
+}
+
+package "Cloud Gateway (ASP.NET Clean Architecture)" {
+    [API Layer\n(Controllers / Middlewares)] as API
+    [Application Layer\n(CQRS / MediatR / Validators)] as App
+    [Infrastructure Layer\n(EF Core / MQTT Client / Hosted Services)] as Infra
+    [Domain Layer\n(Entities / Core Rules / Events)] as Domain
+    
+    API --> App
+    App --> Domain
+    Infra --> Domain
+    App ..> Infra : Interface Implementations
+}
+
+database "Data Storage" {
+    [MySQL / MariaDB] as DB
+}
+
+node "Message Broker" {
+    [MQTT Broker\n(HiveMQ / Mosquitto)] as MQTT
+}
+
+package "IoT Device Grid" {
+    [Sensor Nodes\n(FX-SOIL-N1)] as Sensors
+    [Solenoid Valves\n(Zone Flow Control)] as Valves
+    [Pump Actuators\n(Main / Booster Motors)] as Pumps
+}
+
+' Communications
+Mobile ---> API : REST API (HTTPS / JSON)
+Web ---> API : REST API (HTTPS / JSON)
+
+Infra ---> DB : Database Queries (EF Core)
+Infra <---> MQTT : MQTT Protocol (TCP/IP)
+
+Sensors -.-> MQTT : Publishes Telemetry\n(Moisture / Battery / Signal)
+MQTT -.-> Valves : Subscribes & Receives\nToggle Commands
+MQTT -.-> Pumps : Subscribes & Receives\nToggle Commands
+
+@enduml
