@@ -3,11 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   Home, Leaf, Droplets, Cpu, User,
   Bell, LogOut, RefreshCw, MapPin, ChevronRight,
-  Plus, Play, Square, Clock, Calendar, Trash, Pencil,
-  Thermometer, Droplet, Wind, CloudRain, Sun, Cloud,
-  Battery, Wifi, CheckCircle, AlertCircle, X, Check,
-  Activity, BarChart2, TrendingUp, Settings, Camera,
-  ChevronDown, ChevronUp, Layers, Filter, Search, Sparkles
+  Plus, Play, Clock, Calendar, Trash,
+  Droplet, Wind, CloudRain, Cloud,
+  Battery, Wifi, AlertCircle,
+  Activity, TrendingUp, Settings,
+  ChevronDown, ChevronUp, Layers, Search, Sparkles
 } from 'lucide-react';
 import api from '../services/api';
 import AiAdvisorTab from '../components/dashboard/AiAdvisorTab';
@@ -19,7 +19,6 @@ interface Motor { id: string; motorName: string; powerRating: string; status: st
 interface Schedule { id: string; zoneId: string; zoneName?: string; startTime: string; durationMinutes: number; repeatType: string; enabled: boolean; }
 interface SensorDevice { id: string; zoneId: string; deviceSerial: string; sensorType: string; batteryPercentage: number; signalStrength: number; status: string; }
 interface Notification { id: string; title: string; message: string; type: string; isRead: boolean; }
-interface MoistureReading { moisturePercentage: number; recordedAt: string; }
 
 const TABS = [
   { id: 'home', label: 'Home', icon: Home },

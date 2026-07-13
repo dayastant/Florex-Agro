@@ -3,9 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { 
   Sprout, LogOut, ChevronLeft, ChevronRight, Layers, Cpu, 
   BarChart3, Users, Sliders, LayoutDashboard, Pencil, Trash, 
-  Plus, Check, X, CreditCard, Terminal
+  Plus, Check, X, CreditCard, Terminal, Sparkles
 } from 'lucide-react';
 import api from '../services/api';
+import AiAdvisorTab from '../components/dashboard/AiAdvisorTab';
 
 interface UserItem {
   id: string;
@@ -130,6 +131,17 @@ export default function SuperAdminDashboardPage() {
   const [editZoneCrop, setEditZoneCrop] = useState('');
   const [editZoneSoil, setEditZoneSoil] = useState('');
 
+  const [selectedFarm, setSelectedFarm] = useState<FarmItem | null>(null);
+  const [selectedZone, setSelectedZone] = useState<ZoneItem | null>(null);
+
+  const handleZoneSelect = (zone: any) => {
+    setSelectedZone(zone);
+    const farm = farms.find(f => f.id === zone.farmId);
+    if (farm) {
+      setSelectedFarm(farm);
+    }
+  };
+
   // Platform Config Settings
   const [config, setConfig] = useState({
     apiRateLimit: 500,
@@ -218,6 +230,13 @@ export default function SuperAdminDashboardPage() {
       setDevices(fetchedDevices);
       setMotors(fetchedMotors);
       setValves(fetchedValves);
+
+      if (fetchedFarms.length > 0) {
+        setSelectedFarm(fetchedFarms[0]);
+      }
+      if (zonesData.length > 0) {
+        setSelectedZone(zonesData[0]);
+      }
 
       // Setup Subscriptions database (localStorage cache or default seed)
       const cachedSubs = localStorage.getItem('superadmin_subscriptions');
@@ -505,6 +524,7 @@ export default function SuperAdminDashboardPage() {
     { id: 'billing', label: 'Subscriptions', icon: CreditCard },
     { id: 'analytics', label: 'Engine Diagnostics', icon: BarChart3 },
     { id: 'settings', label: 'Platform Config', icon: Sliders },
+    { id: 'agronomist', label: 'AI Advisor', icon: Sparkles },
   ];
 
   return (
@@ -589,6 +609,7 @@ export default function SuperAdminDashboardPage() {
               {activeTab === 'billing' && 'BILLING & SUBSCRIPTION PROFILES'}
               {activeTab === 'analytics' && 'PLATFORM CPU DIAGNOSTICS'}
               {activeTab === 'settings' && 'SYSTEM CONFIG REGISTRY'}
+              {activeTab === 'agronomist' && 'AGRONOMIC AI ADVISOR'}
             </h2>
           </div>
           <div className="flex items-center gap-4">
@@ -1369,6 +1390,17 @@ export default function SuperAdminDashboardPage() {
                 </div>
               </form>
             </div>
+          )}
+
+          {/* TAB 8: AI ADVISOR */}
+          {activeTab === 'agronomist' && (
+            <AiAdvisorTab 
+              farms={farms}
+              zones={zones}
+              selectedFarm={selectedFarm}
+              selectedZone={selectedZone}
+              onZoneSelect={handleZoneSelect}
+            />
           )}
 
         </main>

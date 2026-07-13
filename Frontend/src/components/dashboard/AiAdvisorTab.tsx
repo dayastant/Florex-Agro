@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
-  Sparkles, Lock, Unlock, Phone, Coins, Loader2, 
-  CheckCircle, ShieldAlert, Cpu, Send, Droplets, BookOpen, ChevronRight, Check
+  Sparkles, Lock, Phone, Coins, Loader2, 
+  Cpu, Send, BookOpen, Check
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -31,9 +31,9 @@ interface AiAdvisorTabProps {
 }
 
 export default function AiAdvisorTab({
-  farms,
+  farms: _farms,
   zones,
-  selectedFarm,
+  selectedFarm: _selectedFarm,
   selectedZone,
   onZoneSelect
 }: AiAdvisorTabProps) {

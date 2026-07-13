@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   Sprout, LogOut, ChevronLeft, ChevronRight, Cpu, CloudRain, Database, BarChart3, 
-  LayoutDashboard, ShieldCheck, Search, Info, RefreshCw, ClipboardList, Bell, FileText, CheckCircle, Plus
+  LayoutDashboard, ShieldCheck, Search, Info, RefreshCw, ClipboardList, Bell, FileText, CheckCircle, Plus,
+  Sparkles
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -12,6 +13,7 @@ import IrrigationTab from '../components/dashboard/IrrigationTab';
 import SensorsTab from '../components/dashboard/SensorsTab';
 import WaterTab from '../components/dashboard/WaterTab';
 import AnalyticsTab from '../components/dashboard/AnalyticsTab';
+import AiAdvisorTab from '../components/dashboard/AiAdvisorTab';
 
 interface Farm {
   id: string;
@@ -426,6 +428,7 @@ export default function TechnicianDashboardPage() {
       case 'maintenance': return 'Maintenance, Reports & Active Alerts';
       case 'analytics': return 'Telemetry Testing & Logs';
       case 'diagnostic': return 'Hardware Sweep & Zone Inspector';
+      case 'agronomist': return 'Agronomic AI Advisor';
       default: return 'Technician Console';
     }
   };
@@ -439,6 +442,7 @@ export default function TechnicianDashboardPage() {
       case 'maintenance': return 'Create maintenance logs, view task history, and resolve active hardware warnings.';
       case 'analytics': return 'Inject diagnostic mock moisture entries and inspect CSV database reports.';
       case 'diagnostic': return 'Run instant hardware checks, export log streams, and locate zones.';
+      case 'agronomist': return 'AI-powered precision crop diagnostics, weather-aware scheduling, and agronomic insights.';
       default: return '';
     }
   };
@@ -461,7 +465,8 @@ export default function TechnicianDashboardPage() {
     { id: 'sensors', label: 'IoT Node Diagnostics', icon: Cpu },
     { id: 'water', label: 'Reservoirs & Tanks', icon: Database },
     { id: 'maintenance', label: 'Maintenance & Alerts', icon: ClipboardList },
-    { id: 'analytics', label: 'Telemetry Simulator', icon: BarChart3 }
+    { id: 'analytics', label: 'Telemetry Simulator', icon: BarChart3 },
+    { id: 'agronomist', label: 'AI Advisor', icon: Sparkles }
   ];
 
   return (
@@ -1016,6 +1021,16 @@ export default function TechnicianDashboardPage() {
             <AnalyticsTab 
               farms={farms}
               sensorDevices={sensorDevices}
+            />
+          )}
+
+          {activeTab === 'agronomist' && (
+            <AiAdvisorTab 
+              farms={farms}
+              zones={zones}
+              selectedFarm={selectedFarm}
+              selectedZone={selectedZone}
+              onZoneSelect={handleZoneSelect}
             />
           )}
         </div>
